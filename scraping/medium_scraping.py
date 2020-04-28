@@ -1,5 +1,7 @@
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
+from extensions.database import db
+from model.medium_model import MediumModel
 
 # I will use my medium profile page, it's open so you can try too
 MEDIUM_URL = "https://medium.com/@ProfessionProgrammer"
@@ -26,7 +28,13 @@ def scraping_medium():
         try:
             title = item.h1.text
             post_link = item.a['href']
-        
+
+            # We create our model
+            post = MediumModel(title=title, post_link=post_link)
+            
+            # We add to our db session
+            db.session.add(post)
+            
             # This is only intended for debug not for production
             print(title)
             print(post_link)
@@ -35,3 +43,13 @@ def scraping_medium():
             # If you are using this in production, you should have a log layer that you log when this happens
             print("No tag found")
         
+    # after all the loop is done we just persist into our database
+    db.session.commit()
+    
+
+def fetch_medium_posts():
+    postList = MediumModel.query.order_by(MediumModel.date_created).all()
+    
+    serialized_list = list(map(lambda post : post.to_dict(), postList))
+
+    return serialized_list

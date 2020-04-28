@@ -1,5 +1,6 @@
 import click
 from extensions.database import db
+from model.medium_model import MediumModel
 
 def create_db():
     """Creates database"""
@@ -13,8 +14,7 @@ def drop_db():
 
 def create_model_table():
     """ Create table Model in the database """
-    # Model.__table__.create(db.engine)
-    pass
+    MediumModel.__table__.create(db.engine)
 
 
 def init_app(app):
